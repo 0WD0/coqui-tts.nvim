@@ -33,7 +33,7 @@ function M.get_text_range(start_line, start_col, end_line, end_col)
 	local end_idx
 	lines[1] = string.sub(lines[1], start_idx + 1)
 	if start_line == end_line then
-		end_col = end_col - start_col
+		end_col = end_col - start_col + 1
 	end
 	end_idx = vim.str_byteindex(lines[#lines], vim.str_utfindex(lines[#lines], end_col))
 	lines[#lines] = string.sub(lines[#lines], 1, end_idx)
