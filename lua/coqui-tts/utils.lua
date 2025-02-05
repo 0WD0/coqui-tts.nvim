@@ -25,22 +25,23 @@ function M.get_selection_text()
 end
 
 function M.get_text_range(start_line, start_col, end_line, end_col)
+	vim.notify(string.format("start_line: %d, start_col: %d, end_line: %d, end_col: %d", start_line, start_col, end_line, end_col), vim.log.levels.INFO)
 	local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
 	if #lines == 0 then return '' end
 	-- 使用vim.str_utfindex和vim.str_byteindex来处理UTF-8
 	local start_idx = vim.str_byteindex(lines[1], vim.str_utfindex(lines[1], start_col - 1))
+	local end_idx
 	lines[1] = string.sub(lines[1], start_idx + 1)
 	if start_line == end_line then
-		local end_idx = vim.str_byteindex(lines[1], vim.str_utfindex(lines[1], end_col))
-		lines[1] = string.sub(lines[1], 1, end_idx)
-	else
-		local end_idx = vim.str_byteindex(lines[#lines], vim.str_utfindex(lines[#lines], end_col))
-		lines[#lines] = string.sub(lines[#lines], 1, end_idx)
+		end_col = end_col - start_col
 	end
+	end_idx = vim.str_byteindex(lines[#lines], vim.str_utfindex(lines[#lines], end_col))
+	lines[#lines] = string.sub(lines[#lines], 1, end_idx)
 	for i,line in pairs(lines) do
 		-- lines[line] = vim.fn.substitute(lines[line], '\n$', '', '')
 		vim.notify(line, vim.log.levels.INFO)
 	end
+	vim.notify(string.format("start_idx: %d, end_idx: %d", start_idx, end_idx), vim.log.levels.INFO)
 	return table.concat(lines, '\n')
 end
 
