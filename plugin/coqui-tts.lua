@@ -1,7 +1,7 @@
 -- 创建命令
-vim.api.nvim_create_user_command('CoquiSpeak', function()
-    require('coqui-tts').speak_text()
-end, {})
+vim.api.nvim_create_user_command('CoquiSpeak', function(opts)
+    require('coqui-tts').speak_text(opts)
+end, {range = true})
 
 vim.api.nvim_create_user_command('CoquiSelectSpeaker', function()
     require('coqui-tts').select_speaker()

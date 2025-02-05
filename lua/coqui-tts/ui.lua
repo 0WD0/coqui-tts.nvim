@@ -33,8 +33,17 @@ function M.select_language()
 end
 
 -- 朗读选中文本
-function M.speak_text()
-	local text = utils.get_visual_selection()
+function M.speak_text(opts)
+	local text
+	if opts and opts.range then
+		local start_line = vim.fn.line("'<")
+		local start_col = vim.fn.col("'<")
+		local end_line = vim.fn.line("'>")
+		local end_col = vim.fn.col("'>")
+		text = utils.get_text_range(start_line, start_col, end_line, end_col)
+	else
+		text = utils.get_selection_text()
+	end
 	if text == "" then
 		vim.notify("没有选中文本", vim.log.levels.WARN)
 		return
