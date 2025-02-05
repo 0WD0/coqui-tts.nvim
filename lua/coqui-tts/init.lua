@@ -1,6 +1,8 @@
 local config = require('coqui-tts.config')
 local ui = require('coqui-tts.ui')
 local api = require('coqui-tts.api')
+local command = require('coqui-tts.command')
+local utils = require('coqui-tts.utils')
 
 local M = {}
 
@@ -30,6 +32,7 @@ end
 -- 导出配置设置函数
 M.setup = function(opts)
 	config.setup(opts)
+	command.setup()
 	if not check_dependencies() then
 		return
 	end
@@ -42,5 +45,8 @@ M.speak_text = ui.speak_text
 
 -- 导出API函数
 M.refresh_model_info = api.refresh_model_info
+M.send_tts_request = api.send_tts_request
+M.get_model_info = api.get_model_info
+M.replay = utils.replay  -- 从utils导出重播功能
 
 return M

@@ -1,3 +1,6 @@
+local config = require('coqui-tts.config')
+local Job = require('plenary.job')
+
 local M = {}
 
 -- 获取当前选中的文本
@@ -41,14 +44,35 @@ end
 
 -- 播放音频
 function M.play_audio(audio_file, audio_player)
-	local cmd = string.format("%s %s", audio_player, audio_file)
-	vim.fn.jobstart(cmd, {
-		on_exit = function(_, code)
-			if code ~= 0 then
-				vim.notify("音频播放失败", vim.log.levels.ERROR)
+	Job:new({
+		command = audio_player,
+		args = { audio_file },
+		on_exit = function(_, return_code)
+			if return_code ~= 0 then
+				vim.schedule(function()
+					vim.notify("音频播放失败", vim.log.levels.ERROR)
+				end)
 			end
 		end
-	})
+	}):start()
+end
+
+-- 播放音频文件
+function M.play_audio_file()
+	M.play_audio(config.config.temp_audio_file, config.config.audio_player)
+end
+
+-- 重新播放最后一次生成的音频
+function M.replay()
+	-- 检查文件是否存在
+	local stat = vim.loop.fs_stat(config.config.temp_audio_file)
+	if stat and stat.type == "file" then
+		M.play_audio(config.config.temp_audio_file, config.config.audio_player)
+	else
+		vim.schedule(function()
+			vim.notify("没有可播放的音频文件", vim.log.levels.ERROR)
+		end)
+	end
 end
 
 return M

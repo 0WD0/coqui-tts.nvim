@@ -1,5 +1,6 @@
 local config = require('coqui-tts.config')
 local Job = require('plenary.job')
+local utils = require('coqui-tts.utils')
 
 local M = {}
 
@@ -151,6 +152,7 @@ function M.send_tts_request(text, speaker, language, callback)
 					vim.notify("TTS请求失败", vim.log.levels.ERROR)
 					callback(false)
 				else
+					utils.play_audio_file()
 					callback(true)
 				end
 			end)
