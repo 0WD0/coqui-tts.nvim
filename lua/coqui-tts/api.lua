@@ -18,18 +18,34 @@ function M.get_model_info(callback)
 		return
 	end
 
+	vim.notify("正在获取模型信息...", vim.log.levels.INFO)
+
 	-- 使用plenary.job异步执行curl命令
 	Job:new({
 		command = 'curl',
 		args = {
-			'-s',
+			'-v',  -- 添加详细输出
 			'--connect-timeout', tostring(config.config.connect_timeout),
 			config.config.server_url .. "/"
 		},
+		on_stdout = function(_, data)
+			if data then
+				vim.schedule(function()
+					vim.notify("Curl stdout: " .. vim.inspect(data), vim.log.levels.DEBUG)
+				end)
+			end
+		end,
+		on_stderr = function(_, data)
+			if data then
+				vim.schedule(function()
+					vim.notify("Curl stderr: " .. vim.inspect(data), vim.log.levels.DEBUG)
+				end)
+			end
+		end,
 		on_exit = function(j, return_code)
 			if return_code ~= 0 then
 				vim.schedule(function()
-					vim.notify("获取模型信息失败: 服务器无响应", vim.log.levels.ERROR)
+					vim.notify("获取模型信息失败: 服务器无响应 (返回码: " .. return_code .. ")", vim.log.levels.ERROR)
 					if model_info_cache then
 						vim.notify("使用缓存的模型信息", vim.log.levels.INFO)
 						callback(model_info_cache)
@@ -41,6 +57,10 @@ function M.get_model_info(callback)
 			end
 
 			local result = j:result()
+			vim.schedule(function()
+				vim.notify("Curl result: " .. vim.inspect(result), vim.log.levels.DEBUG)
+			end)
+
 			if #result == 0 then
 				vim.schedule(function()
 					vim.notify("获取模型信息失败: 服务器返回空响应", vim.log.levels.ERROR)
@@ -120,7 +140,7 @@ function M.send_tts_request(text, speaker, language, callback)
 		callback(false)
 		return
 	end
-	
+
 	-- 移除末尾的换行符
 	encoded_text = encoded_text:gsub("\n$", "")
 
