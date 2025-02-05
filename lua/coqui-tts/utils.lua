@@ -37,6 +37,10 @@ function M.get_text_range(start_line, start_col, end_line, end_col)
 		local end_idx = vim.str_byteindex(lines[#lines], vim.str_utfindex(lines[#lines], end_col))
 		lines[#lines] = string.sub(lines[#lines], 1, end_idx)
 	end
+	for i,line in pairs(lines) do
+		-- lines[line] = vim.fn.substitute(lines[line], '\n$', '', '')
+		vim.notify(line, vim.log.levels.INFO)
+	end
 	return table.concat(lines, '\n')
 end
 
