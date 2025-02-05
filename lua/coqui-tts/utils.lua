@@ -75,4 +75,43 @@ function M.replay()
 	end
 end
 
+-- 保存配置到文件
+function M.save_config()
+	-- 只保存需要持久化的配置项
+	local persistent_config = {
+		default_speaker = config.config.default_speaker,
+		default_language = config.config.default_language,
+	}
+
+	local file = io.open(config.config.config_file, "w")
+	if file then
+		file:write(vim.json.encode(persistent_config))
+		file:close()
+		vim.notify("配置已保存", vim.log.levels.INFO)
+	else
+		vim.notify("无法保存配置文件", vim.log.levels.ERROR)
+	end
+end
+
+-- 从文件加载配置
+function M.load_config()
+	local stat = vim.loop.fs_stat(config.config.config_file)
+	if stat and stat.type == "file" then
+		local file = io.open(config.config.config_file, "r")
+		if file then
+			local content = file:read("*a")
+			file:close()
+			
+			local ok, persistent_config = pcall(vim.json.decode, content)
+			if ok and persistent_config then
+				-- 更新配置
+				config.config = vim.tbl_deep_extend("force", config.config, persistent_config)
+				vim.notify("配置已加载", vim.log.levels.INFO)
+			else
+				vim.notify("配置文件格式错误", vim.log.levels.WARN)
+			end
+		end
+	end
+end
+
 return M

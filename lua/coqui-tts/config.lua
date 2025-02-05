@@ -1,15 +1,18 @@
 local M = {}
 
 -- 默认配置
-M.config = {
+M.default_config = {
 	server_url = "http://localhost:5002",
-	default_speaker = "default",
-	default_language = "en",
-	audio_player = "mpv",  -- 需要系统安装mpv
 	temp_audio_file = "/tmp/coqui_tts_output.wav",
 	cache_ttl = 60 * 5,  -- 缓存时间（秒）
 	connect_timeout = 5,  -- 连接超时（秒）
+	audio_player = "mpv",
+	default_speaker = "default",
+	default_language = "en",
+	config_file = vim.fn.stdpath("data") .. "/coqui-tts.json",  -- 配置文件路径
 }
+
+M.config = M.default_config
 
 -- 设置配置
 function M.setup(opts)

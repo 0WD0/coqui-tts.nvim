@@ -29,9 +29,12 @@ local function check_dependencies()
 	return true
 end
 
--- 导出配置设置函数
-M.setup = function(opts)
+-- 初始化插件
+function M.setup(opts)
 	config.setup(opts)
+	utils.load_config()  -- 加载保存的配置
+
+	-- 设置命令
 	command.setup()
 	if not check_dependencies() then
 		return
@@ -47,6 +50,6 @@ M.speak_text = ui.speak_text
 M.refresh_model_info = api.refresh_model_info
 M.send_tts_request = api.send_tts_request
 M.get_model_info = api.get_model_info
-M.replay = utils.replay  -- 从utils导出重播功能
+M.replay = utils.replay
 
 return M

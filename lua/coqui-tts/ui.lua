@@ -7,11 +7,19 @@ local M = {}
 -- 选择speaker
 function M.select_speaker()
 	api.get_model_info(function(model_info)
+		if not model_info then
+			return
+		end
+
 		vim.ui.select(model_info.speakers, {
 			prompt = "选择Speaker:",
+			format_item = function(item)
+				return item
+			end,
 		}, function(choice)
 			if choice then
 				config.config.default_speaker = choice
+				require('coqui-tts.utils').save_config()
 				vim.notify("已设置speaker: " .. choice)
 			end
 		end)
@@ -21,11 +29,19 @@ end
 -- 选择language
 function M.select_language()
 	api.get_model_info(function(model_info)
+		if not model_info then
+			return
+		end
+
 		vim.ui.select(model_info.languages, {
 			prompt = "选择Language:",
+			format_item = function(item)
+				return item
+			end,
 		}, function(choice)
 			if choice then
 				config.config.default_language = choice
+				require('coqui-tts.utils').save_config()
 				vim.notify("已设置language: " .. choice)
 			end
 		end)
