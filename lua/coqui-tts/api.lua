@@ -113,6 +113,17 @@ end
 
 -- 发送TTS请求
 function M.send_tts_request(text, speaker, language, callback)
+	-- URL 编码文本
+	local encoded_text = vim.fn.system(string.format([[echo -n '%s' | jq -sRr @uri]], text))
+	if vim.v.shell_error ~= 0 then
+		vim.notify("URL编码失败", vim.log.levels.ERROR)
+		callback(false)
+		return
+	end
+	
+	-- 移除末尾的换行符
+	encoded_text = encoded_text:gsub("\n$", "")
+
 	Job:new({
 		command = 'curl',
 		args = {
@@ -121,7 +132,7 @@ function M.send_tts_request(text, speaker, language, callback)
 			string.format(
 				'%s/api/tts?text=%s&speaker_id=%s&language_id=%s',
 				config.config.server_url,
-				vim.fn.shellescape(text),
+				encoded_text,
 				vim.fn.shellescape(speaker or config.config.default_speaker),
 				vim.fn.shellescape(language or config.config.default_language)
 			),
