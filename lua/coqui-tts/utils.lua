@@ -12,8 +12,8 @@ function M.get_selection_text()
 		return nil
 	end
 
-	local start_pos = vim.fn.getcharpos('v')
-	local end_pos = vim.fn.getcharpos('.')
+	local start_pos = vim.fn.getpos('v')
+	local end_pos = vim.fn.getpos('.')
 
 	if start_pos[2] > end_pos[2] or (start_pos[2] == end_pos[2] and start_pos[3] > end_pos[3]) then
 		start_pos, end_pos = end_pos, start_pos
@@ -21,8 +21,8 @@ function M.get_selection_text()
 
 	if mode == 'V' then
 		start_pos[3]= 1
-		end_pos[3]= vim.fn.virtcol({end_pos[2],'$'})-1
 	end
+	end_pos[3]= vim.fn.min({end_pos[3], vim.fn.col({end_pos[2],'$'})-1})
 
 	return M.get_text_range(start_pos[2], start_pos[3], end_pos[2], end_pos[3])
 end
@@ -95,13 +95,12 @@ end
 
 -- 从文件加载配置
 function M.load_config()
-	local stat = vim.loop.fs_stat(config.config.config_file)
+	local stat = vim.uv.fs_stat(config.config.config_file)
 	if stat and stat.type == "file" then
 		local file = io.open(config.config.config_file, "r")
 		if file then
 			local content = file:read("*a")
 			file:close()
-			
 			local ok, persistent_config = pcall(vim.json.decode, content)
 			if ok and persistent_config then
 				-- 更新配置
