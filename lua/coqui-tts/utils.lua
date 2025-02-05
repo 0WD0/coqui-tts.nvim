@@ -15,30 +15,37 @@ function M.get_selection_text()
 	local start_pos = vim.fn.getpos('v')
 	local end_pos = vim.fn.getpos('.')
 
+	-- 确保start_pos在end_pos之前
 	if start_pos[2] > end_pos[2] or (start_pos[2] == end_pos[2] and start_pos[3] > end_pos[3]) then
 		start_pos, end_pos = end_pos, start_pos
 	end
 
+	-- 处理整行模式
 	if mode == 'V' then
-		start_pos[3]= 1
+		start_pos[3] = 1
+		end_pos[3] = vim.fn.col({end_pos[2], '$'}) - 1
 	end
-	end_pos[3]= vim.fn.min({end_pos[3], vim.fn.col({end_pos[2],'$'})-1})
-
 	return M.get_text_range(start_pos[2], start_pos[3], end_pos[2], end_pos[3])
 end
 
 function M.get_text_range(start_line, start_col, end_line, end_col)
+	start_col = vim.fn.min({vim.fn.col({start_line, '$'}) - 1, start_col})
+	end_col = vim.fn.min({vim.fn.col({end_line, '$'}) - 1, end_col})
 	local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
 	if #lines == 0 then return '' end
+
 	-- 使用vim.str_utfindex和vim.str_byteindex来处理UTF-8
 	local start_idx = vim.str_byteindex(lines[1], vim.str_utfindex(lines[1], start_col - 1))
-	local end_idx
 	lines[1] = string.sub(lines[1], start_idx + 1)
+
 	if start_line == end_line then
+		-- 单行：需要调整结束列
 		end_col = end_col - start_col + 1
 	end
-	end_idx = vim.str_byteindex(lines[#lines], vim.str_utfindex(lines[#lines], end_col))
+
+	local end_idx = vim.str_byteindex(lines[#lines], vim.str_utfindex(lines[#lines], end_col))
 	lines[#lines] = string.sub(lines[#lines], 1, end_idx)
+
 	return table.concat(lines, '\n')
 end
 
