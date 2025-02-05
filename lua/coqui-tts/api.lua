@@ -68,46 +68,41 @@ function M.get_model_info(callback)
 			local speakers = {}
 			local languages = {}
 
-			-- 解析select元素中的选项
-			for option in html:gmatch('<option%s+value="([^"]+)"%s+SELECTED>[^<]+</option>') do
-				if option then
-					-- 检查是在哪个select中
-					local before_chunk = html:match('(.-<option%s+value="' .. option .. '")')
-					if before_chunk then
-						if before_chunk:match('id="speaker_id"') then
-							table.insert(speakers, option)
-						elseif before_chunk:match('id="language_id"') then
-							table.insert(languages, option)
-						end
-					end
+			-- 分别提取speaker和language的select内容
+			local speaker_select = html:match('id="speaker_id"[^>]*>(.-)</select>')
+			local language_select = html:match('id="language_id"[^>]*>(.-)</select>')
+
+			-- 解析speakers
+			if speaker_select then
+				for option in speaker_select:gmatch('value="([^"]+)"') do
+					table.insert(speakers, option)
 				end
 			end
 
-			-- 如果没有找到，尝试从script标签中解析
-			if #speakers == 0 or #languages == 0 then
-				-- 寻找JavaScript变量定义
-				local js_content = html:match('function%s+synthesize.-{(.-)}')
-				if js_content then
-					-- 提取默认值
-					local default_speaker = js_content:match('speaker_id%s*=%s*"([^"]*)"')
-					local default_language = js_content:match('language_id%s*=%s*"([^"]*)"')
-					if default_speaker then
-						table.insert(speakers, default_speaker)
-					end
-					if default_language then
-						table.insert(languages, default_language)
-					end
+			-- 解析languages
+			if language_select then
+				for option in language_select:gmatch('value="([^"]+)"') do
+					table.insert(languages, option)
 				end
+			end
+
+			-- 如果没有找到，使用默认值
+			if #speakers == 0 then
+				speakers = {"default"}
+			end
+			if #languages == 0 then
+				languages = {"en", "es", "fr", "de", "it", "pt", "pl", "tr", "ru", "nl", "cs", "ar", "zh-cn", "hu", "ko", "ja", "hi"}
 			end
 
 			-- 更新缓存
 			model_info_cache = {
-				speakers = #speakers > 0 and speakers or {"default"},
-				languages = #languages > 0 and languages or {"en"}
+				speakers = speakers,
+				languages = languages
 			}
+			last_fetch_time = current_time
 
 			vim.schedule(function()
-				vim.notify("找到 " .. #speakers .. " 个speakers和 " .. #languages .. " 种语言", vim.log.levels.INFO)
+				vim.notify(string.format("找到 %d 个speakers和 %d 种语言", #speakers, #languages), vim.log.levels.INFO)
 				callback(model_info_cache)
 			end)
 		end,
