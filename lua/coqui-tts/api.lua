@@ -24,17 +24,17 @@ function M.get_model_info(callback)
 	Job:new({
 		command = 'curl',
 		args = {
-			'-v',  -- 添加详细输出
+			'-s',
 			'--connect-timeout', tostring(config.config.connect_timeout),
 			config.config.server_url .. "/"
 		},
-		on_stdout = function(_, data)
-			if data then
-				vim.schedule(function()
-					vim.notify("Curl stdout: " .. vim.inspect(data), vim.log.levels.DEBUG)
-				end)
-			end
-		end,
+		-- on_stdout = function(_, data)
+		-- 	if data then
+		-- 		vim.schedule(function()
+		-- 			vim.notify("Curl stdout: " .. vim.inspect(data), vim.log.levels.DEBUG)
+		-- 		end)
+		-- 	end
+		-- end,
 		on_stderr = function(_, data)
 			if data then
 				vim.schedule(function()
@@ -147,7 +147,7 @@ function M.send_tts_request(text, speaker, language, callback)
 	Job:new({
 		command = 'curl',
 		args = {
-			'-s',
+			'-X', 'POST',
 			'--connect-timeout', tostring(config.config.connect_timeout),
 			string.format(
 				'%s/api/tts?text=%s&speaker_id=%s&language_id=%s',
