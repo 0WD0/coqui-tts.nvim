@@ -137,15 +137,17 @@ function M.send_tts_request(text, speaker, language, callback)
 	Job:new({
 		command = 'curl',
 		args = {
+			'-s',
 			'-X', 'POST',
+			'-H', 'Content-Type: application/x-www-form-urlencoded',
 			'--connect-timeout', tostring(config.config.connect_timeout),
-			string.format(
-				'%s/api/tts?text=%s&speaker_id=%s&language_id=%s',
-				config.config.server_url,
+			'--data', string.format(
+				'text=%s&speaker_id=%s&language_id=%s',
 				encoded_text,
 				vim.fn.shellescape(speaker or config.config.default_speaker),
 				vim.fn.shellescape(language or config.config.default_language)
 			),
+			string.format('%s/api/tts', config.config.server_url),
 			'--output', config.config.temp_audio_file
 		},
 		on_exit = function(_, return_code)
