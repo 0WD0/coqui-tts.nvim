@@ -144,8 +144,8 @@ function M.send_tts_request(text, speaker, language, callback)
 			'--data', string.format(
 				'text=%s&speaker_id=%s&language_id=%s',
 				encoded_text,
-				vim.fn.shellescape(speaker or config.config.default_speaker),
-				vim.fn.shellescape(language or config.config.default_language)
+				speaker or config.config.default_speaker,
+				language or config.config.default_language
 			),
 			string.format('%s/api/tts', config.config.server_url),
 			'--output', config.config.temp_audio_file
