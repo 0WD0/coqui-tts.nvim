@@ -87,14 +87,6 @@ function M.get_model_info(callback)
 				end
 			end
 
-			-- 如果没有找到，使用默认值
-			if #speakers == 0 then
-				speakers = {"default"}
-			end
-			if #languages == 0 then
-				languages = {"en", "es", "fr", "de", "it", "pt", "pl", "tr", "ru", "nl", "cs", "ar", "zh-cn", "hu", "ko", "ja", "hi"}
-			end
-
 			-- 更新缓存
 			model_info_cache = {
 				speakers = speakers,

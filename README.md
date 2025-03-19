@@ -16,7 +16,7 @@
 
 ```lua
 use {
-    'your-username/coqui-tts-server.nvim',
+    '0WD0/coqui-tts-server.nvim',
     requires = 'nvim-lua/plenary.nvim',
     config = function()
         require('coqui-tts').setup({
